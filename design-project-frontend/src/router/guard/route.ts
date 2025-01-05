@@ -20,6 +20,7 @@ export function createRouteGuard(router: Router) {
   router.beforeEach(async (to, from, next) => {
     try {
       const location = await initRoute(to);
+   
 
       if (location) {
         next(location);

@@ -24,6 +24,7 @@ export function useRouterPush(inSetup = true) {
   }
 
   async function routerPushByKey(key: RouteKey, options?: RouterPushOptions) {
+  
     const { query, params } = options || {};
 
     const routeLocation: RouteLocationRaw = {
@@ -38,7 +39,7 @@ export function useRouterPush(inSetup = true) {
       routeLocation.params = params;
     }
 
-    return routerPush(routeLocation);
+    await router.replace(routeLocation);
   }
 
   async function toHome() {
@@ -85,9 +86,9 @@ export function useRouterPush(inSetup = true) {
     const redirect = route.value.query?.redirect as string;
 
     if (redirect) {
-      routerPush(redirect);
+      await routerPush(redirect);
     } else {
-      toHome();
+      await toHome();
     }
   }
 
@@ -97,6 +98,7 @@ export function useRouterPush(inSetup = true) {
     routerPushByKey,
     toLogin,
     toggleLoginModule,
-    redirectFromLogin
+    redirectFromLogin,
+    toHome
   };
 }

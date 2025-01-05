@@ -15,7 +15,7 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
   const route = useRoute();
   const routeStore = useRouteStore();
   const tabStore = useTabStore();
-  const { toLogin, redirectFromLogin } = useRouterPush(false);
+  const { toLogin, toHome } = useRouterPush(false);
   const { loading: loginLoading, startLoading, endLoading } = useLoading();
 
   const token = ref(getToken());
@@ -55,37 +55,32 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
     startLoading();
 
     try {
-      const response = await fetchLogin(userName, password);
-      const loginToken = response.data;
+      // 直接设置 token 和用户信息，跳过网络请求
+      token.value = 'dummy-token'; // 设置一个虚拟的 token
+      localStg.set('token', token.value);
+      console.log("设置token");
+      userInfo.userId = 'dummy-user-id';
+      userInfo.userName = 'admin';
 
-      console.log('Login Token:', loginToken); // 调试输出
-      localStg.set('token', loginToken);
-      const pass = await loginByToken(loginToken);
-//
+      // 初始化路由
+      await routeStore.initAuthRoute();
 
-      if (pass) {
-        await routeStore.initAuthRoute();
+        await toHome();
+      
 
-        if (redirect) {
-          await redirectFromLogin();
-        }
-
-        if (routeStore.isInitAuthRoute) {
-          window.$notification?.success({
-            message: $t('page.login.common.loginSuccess'),
-            description: $t('page.login.common.welcomeBack', { username: userInfo.username })
-          });
-        }
+      if (true) {
+        window.$notification?.success({
+          message: $t('page.login.common.loginSuccess'),
+          description: "欢迎回来"
+        });
       }
     } catch (error) {
-      alert("用户名或密码错误");
       console.error('Login error:', error);
       resetStore();
     } finally {
       endLoading();
     }
   }
-
 
   async function loginByToken(loginToken: Api.Auth.LoginToken) {
     // 1. 存储在本地存储中，后续请求需要它在 headers 中
